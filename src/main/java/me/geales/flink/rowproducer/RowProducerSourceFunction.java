@@ -33,11 +33,11 @@ public class RowProducerSourceFunction implements SourceFunction<Row> {
 
 
             long timeLong = Instant.now().toEpochMilli() + random.nextInt(jitter);
-            Row row = new Row(3);
+            Row row = new Row(4);
             row.setField(0, this.counter.getAndIncrement());
             row.setField(1, "" + (char)((int)'A' + random.nextInt(24)));
             row.setField(2, new Timestamp(timeLong));
-//            row.setField(3, random.nextInt(99));
+            row.setField(3, new Integer(random.nextInt(99)));
             sourceContext.collectWithTimestamp(row, timeLong);
         }
     }

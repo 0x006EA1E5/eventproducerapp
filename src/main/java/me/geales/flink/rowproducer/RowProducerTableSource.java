@@ -41,12 +41,12 @@ public class RowProducerTableSource implements StreamTableSource<Row>, DefinedPr
         return streamExecutionEnvironment.addSource(
                 this.rowProducerSourceFunction)
                 .name("RowProducer")
-                .returns(Types.ROW(Types.LONG, Types.STRING, Types.SQL_TIMESTAMP));
+                .returns(Types.ROW(Types.LONG, Types.STRING, Types.SQL_TIMESTAMP, Types.INT));
     }
 
     @Override
     public TypeInformation<Row> getReturnType() {
-        return Types.ROW_NAMED(new String[]{"id", "type", "generatedAt"}, Types.LONG, Types.STRING, Types.SQL_TIMESTAMP);
+        return Types.ROW_NAMED(new String[]{"id", "type", "generatedAt", "val"}, Types.LONG, Types.STRING, Types.SQL_TIMESTAMP, Types.INT);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class RowProducerTableSource implements StreamTableSource<Row>, DefinedPr
                 .field("id", Types.LONG)
                 .field("type", Types.STRING)
                 .field("generatedAt", Types.SQL_TIMESTAMP)
-//                .field("val", Types.INT)
+                .field("val", Types.INT)
                 .field("proctime", Types.SQL_TIMESTAMP)
                 .field("rowtime", Types.SQL_TIMESTAMP)
                 .build();
