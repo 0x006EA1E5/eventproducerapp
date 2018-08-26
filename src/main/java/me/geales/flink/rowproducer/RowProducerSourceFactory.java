@@ -14,7 +14,8 @@ public class RowProducerSourceFactory implements StreamTableSourceFactory<Row> {
     public StreamTableSource<Row> createStreamTableSource(Map<String, String> map) {
         long delay = Long.parseLong(map.getOrDefault("connector.delay", "500"));
         int jitter = Integer.parseInt(map.getOrDefault("connector.jitter", "0"));
-        return new RowProducerTableSource(delay, jitter);
+        boolean outOfOrder = Boolean.parseBoolean(map.getOrDefault("connector.jitter", "true"));
+        return new RowProducerTableSource(delay, jitter, outOfOrder);
     }
 
     public Map<String, String> requiredContext() {
@@ -29,6 +30,7 @@ public class RowProducerSourceFactory implements StreamTableSourceFactory<Row> {
         list.add("connector.debug");
         list.add("connector.delay");
         list.add("connector.jitter");
+        list.add("connector.outOfOrder");
         return list;
     }
 }

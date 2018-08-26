@@ -24,21 +24,16 @@ public class RowProducerSourceFunction implements SourceFunction<Row> {
     @Override
     public void run(SourceFunction.SourceContext<Row> sourceContext) throws Exception {
         while(this.isRunning) {
-            try {
-                TimeUnit.MILLISECONDS.sleep(this.delay);
-            } catch (InterruptedException e) {
-                System.err.print("Cancelled");
-                throw e;
-            }
 
+            TimeUnit.MILLISECONDS.sleep(this.delay);
 
-            long timeLong = Instant.now().toEpochMilli() + random.nextInt(jitter);
+            long timeLong = Instant.now().toEpochMilli();
             Row row = new Row(4);
             row.setField(0, this.counter.getAndIncrement());
-            row.setField(1, "" + (char)((int)'A' + random.nextInt(24)));
+            row.setField(1, "" + (char)((int)'A' + random.nextInt(23)));
             row.setField(2, new Timestamp(timeLong));
-            row.setField(3, new Integer(random.nextInt(99)));
-            sourceContext.collectWithTimestamp(row, timeLong);
+            row.setField(3, random.nextInt(99));
+            sourceContext.collectWithTimestamp(row, timeLong + random.nextInt(jitter));
         }
     }
 

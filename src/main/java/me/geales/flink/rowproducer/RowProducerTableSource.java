@@ -11,6 +11,7 @@ import org.apache.flink.table.sources.RowtimeAttributeDescriptor;
 import org.apache.flink.table.sources.StreamTableSource;
 import org.apache.flink.table.sources.tsextractors.StreamRecordTimestamp;
 import org.apache.flink.table.sources.wmstrategies.AscendingTimestamps;
+import org.apache.flink.table.sources.wmstrategies.BoundedOutOfOrderTimestamps;
 import org.apache.flink.types.Row;
 
 import javax.annotation.Nullable;
@@ -20,8 +21,12 @@ import java.util.List;
 public class RowProducerTableSource implements StreamTableSource<Row>, DefinedProctimeAttribute, DefinedRowtimeAttributes {
 
     private final RowProducerSourceFunction rowProducerSourceFunction;
+    private final int jitter;
+    private final boolean outOfOrder;
 
-    public RowProducerTableSource(long delay, int jitter) {
+    public RowProducerTableSource(long delay, int jitter, boolean outOfOrder) {
+        this.jitter = jitter;
+        this.outOfOrder = outOfOrder;
         this.rowProducerSourceFunction = new RowProducerSourceFunction(delay, jitter);
     }
 
@@ -32,7 +37,11 @@ public class RowProducerTableSource implements StreamTableSource<Row>, DefinedPr
     @Override
     public List<RowtimeAttributeDescriptor> getRowtimeAttributeDescriptors() {
         List<RowtimeAttributeDescriptor> list = new ArrayList<>();
-        list.add(new RowtimeAttributeDescriptor("rowtime", new StreamRecordTimestamp(), new AscendingTimestamps()));
+        list.add(new RowtimeAttributeDescriptor(
+                "rowtime",
+                new StreamRecordTimestamp(),
+                outOfOrder ? new AscendingTimestamps() : new BoundedOutOfOrderTimestamps(jitter * 2)
+        ));
         return list;
     }
 
