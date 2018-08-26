@@ -23,8 +23,10 @@ public class RowProducerTableSource implements StreamTableSource<Row>, DefinedPr
     private final RowProducerSourceFunction rowProducerSourceFunction;
     private final int jitter;
     private final boolean outOfOrder;
+    private final int outOfOrderDelay;
 
-    public RowProducerTableSource(long delay, int jitter, boolean outOfOrder) {
+    public RowProducerTableSource(long delay, int jitter, boolean outOfOrder, int outOfOrderDelay) {
+        this.outOfOrderDelay = outOfOrderDelay;
         this.jitter = jitter;
         this.outOfOrder = outOfOrder;
         this.rowProducerSourceFunction = new RowProducerSourceFunction(delay, jitter);
@@ -40,7 +42,7 @@ public class RowProducerTableSource implements StreamTableSource<Row>, DefinedPr
         list.add(new RowtimeAttributeDescriptor(
                 "rowtime",
                 new StreamRecordTimestamp(),
-                outOfOrder ? new AscendingTimestamps() : new BoundedOutOfOrderTimestamps(jitter * 2)
+                outOfOrder ? new AscendingTimestamps() : new BoundedOutOfOrderTimestamps(this.outOfOrderDelay)
         ));
         return list;
     }
